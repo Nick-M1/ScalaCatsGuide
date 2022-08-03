@@ -1,5 +1,10 @@
 ## GUIDE FOR CATS LIBRARY:
 
+### Overview of the Components in the Cats Ecosystem:
+* Abstract type classes (e.g. Monad, Functor, Applicative, Semigroup) - "_Code to abstractions not concrete implementations_"
+* Data types - Real world data structures/types that each have their own functionality & use-cases
+* Cats Effects - Adds onto the Cats Library with extra type-classes & data-types, dealing with concurrency, parallelism and running fibers. <p>
+
 ### #1 - Docs Folder:
 Contains the guide documents.
 
@@ -15,5 +20,3 @@ Provides an example of how each type class is used
 
 ### #5 - Data types Folder:
 For each data type that Cats provides, describes what each does and provides an example of using it.
-
-
