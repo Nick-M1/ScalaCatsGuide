@@ -19,7 +19,7 @@ object RandomConstructor2 extends App {
   }
 
   // To get the next number or boolean
-  val nextLong: State[Seed, Long] = State(seed => (seed.next, seed.long))
+  val nextLong: State[Seed, Long] = State(seed => (seed.next, seed.long))     // State.apply() requires arg f: S => (S + A), where 1st S is the current State, A is the current State's value & 2nd S is the next State
   val nextBoolean: State[Seed, Boolean] = nextLong.map(long => long >= 0)     // Uses nextLong, but makes a boolean from the long returned
 
 
