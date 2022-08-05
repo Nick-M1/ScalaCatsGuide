@@ -18,18 +18,18 @@ import cats.data.{NonEmptyList, Validated}
 
 object Demo5 extends App {
 
-  // USING KLEISLIS (instead of Check)
-  // Previously, Check was just being used as a wrapper for the functions in Predicate, but can use Kleisli as wrapper instead
-  // However, Kleislis  relies on the wrapped function returning a monad, so convert Validated[E, A] to Either[E, A]
+  /** USING KLEISLIS (instead of Check) <p>
+      Previously, Check was just being used as a wrapper for the functions in Predicate, but can use Kleisli as wrapper instead <br>
+      However, Kleislis  relies on the wrapped function returning a monad, so convert Validated[E, A] to Either[E, A]
+  */
 
 
   // PREDICATE
   sealed trait Predicate[E, A] {
     import Predicate.*
-    import Validated.*
 
     def run(implicit s: Semigroup[E]): A => Either[E, A] =
-      (a: A) => this(a).toEither
+      (a: A) => this(a).toEither        // Returns function
 
     def and(that: Predicate[E, A]): Predicate[E, A] =
       And(this, that)
@@ -68,7 +68,7 @@ object Demo5 extends App {
 
 
   // Error from checks:
-  type Errors = NonEmptyList[String]
+  type Errors = NonEmptyList[String]              // Use NonEmptyList ,so we can assume it contains at least 1 error if this list is present, so don't need to check if this list is empty
 
   def error(s: String): NonEmptyList[String] =
     NonEmptyList(s, Nil)
@@ -83,7 +83,7 @@ object Demo5 extends App {
     Kleisli[Result, A, A](pred.run)
 
 
-  // Base predicate definitions
+  // Base predicate definitions - Checking Functions
 
   def longerThan(n: Int): Predicate[Errors, String] =
     Predicate.lift(
@@ -126,14 +126,15 @@ object Demo5 extends App {
 
   // Test with a User:
   final case class User(username: String, email: String)
-  def createUser(username: String, email: String): Either[Errors, User] =
-    (checkUsername.run(username), checkEmail.run(email)).mapN(User)
 
-  println(
-    createUser("Noel", "noel@underscore.io")          // res: Either[Errors, User] = Right(User("Noel", "noel@underscore.io"))
-  )
-  println(
-    createUser("", "dave@underscore.io@io")           // res:  Either[Errors, User] = Left( NonEmptyList("Must be longer than 3 characters", "Must contain a single @ character") )
-  )
+  // Creates a user only if all checking functions pass, otherwise Errors Type is returned with a NonEmptyList of all the errors accumulated
+  def createUser(username: String, email: String): Either[Errors, User] = {
+    (checkUsername.run(username), checkEmail.run(email)).mapN(User.apply)
+  }
+
+
+
+  createUser("Noel", "noel@underscore.io")          // res: Either[Errors, User] = Right(User("Noel", "noel@underscore.io"))
+  createUser("", "dave@underscore.io@io")           // res:  Either[Errors, User] = Left( NonEmptyList("Must be longer than 3 characters", "Must contain a single @ character") )
 }
 

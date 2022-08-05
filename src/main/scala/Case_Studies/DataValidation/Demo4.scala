@@ -20,31 +20,34 @@ import cats.data.{NonEmptyList, Validated}
 object Demo4 extends App {
 
 
-  /* Implementation v2:
-     Model checks as an algebraic data type, with an explicit data type for each combinator.      */
-
-  // Issue: Before we had    type Check[E, A] = A => Either[E, A]
-  // so an A type is inputted & type A outputted, but want input & output types to be different
-  // Solution: Use Predicate[E, A] AND Check[E, A, B] = A => Either[E, B]
+  /** Implementation v4: <p>
+   *  Model checks as an algebraic data type, with an explicit data type for each combinator. <p>
+   *
+   *  Issue: Before we had    type Check[E, A] = A => Either[E, A] <br>
+   *  so an A type is inputted & type A outputted, but want input & output types to be different <br>
+   *  Solution: Use Predicate[E, A] AND Check[E, A, B] = A => Either[E, B]
+   *  */
 
   // PREDICATE
   sealed trait Predicate[E, A] {
 
     import Predicate.*
-    import Validated.*
 
+    // Join 2 checks together - both checks need to pass to not return error
     def and(that: Predicate[E, A]): Predicate[E, A] =
       And(this, that)
 
+    // Join 2 checks together - either check needs to pass to not return error
     def or(that: Predicate[E, A]): Predicate[E, A] =
       Or(this, that)
 
+    // Applies the checks to a value
     def apply(a: A)(implicit s: Semigroup[E]): Validated[E, A] = this match {
-      case Pure(func) => func(a)
+      case Pure(func) => func(a)                                        // Applies a single check function to a
 
-      case And(left, right) => (left(a), right(a)).mapN((_, _) => a)
+      case And(left, right) => (left(a), right(a)).mapN((_, _) => a)    // Applies 2 check functions to a & returns error if either check fails
 
-      case Or(left, right) => left(a) match {
+      case Or(left, right) => left(a) match {                           // Applies 2 check functions to a & returns error if both check fails
         case Valid(_) => Valid(a)
         case Invalid(e1) => right(a) match {
           case Valid(_) => Valid(a)
@@ -56,14 +59,15 @@ object Demo4 extends App {
 
   object Predicate {
     final case class And[E, A](left: Predicate[E, A], right: Predicate[E, A]) extends Predicate[E, A]
-
     final case class Or[E, A](left: Predicate[E, A], right: Predicate[E, A]) extends Predicate[E, A]
-
+    
     final case class Pure[E, A](func: A => Validated[E, A]) extends Predicate[E, A]
-
-    def apply[E, A](f: A => Validated[E, A]): Predicate[E, A] =
+    
+    // Apply checking function - returns a Pure containing the function
+    def apply[E, A](f: A => Validated[E, A]): Predicate[E, A] =     
       Pure(f)
-
+    
+    // Given error value & checking function - returns a Pure containing the function
     def lift[E, A](err: E, fn: A => Boolean): Predicate[E, A] =
       Pure(a => if (fn(a)) a.valid else err.invalid)
   }
@@ -120,31 +124,40 @@ object Demo4 extends App {
   }
 
 
+  
+  
+  
   // Error from checks:
   type Errors = NonEmptyList[String]
 
   def error(s: String): NonEmptyList[String] =
     NonEmptyList(s, Nil)
 
+  
+  // THE CHECKING FUNCTIONS:
   def longerThan(n: Int): Predicate[Errors, String] =
     Predicate.lift(
       error(s"Must be longer than $n characters"),
-      str => str.length > n)
+      str => str.length > n
+    )
 
   val alphanumeric: Predicate[Errors, String] =
     Predicate.lift(
       error(s"Must be all alphanumeric characters"),
-      str => str.forall(_.isLetterOrDigit))
+      str => str.forall(_.isLetterOrDigit)
+    )
 
   def contains(char: Char): Predicate[Errors, String] =
     Predicate.lift(
       error(s"Must contain the character $char"),
-      str => str.contains(char))
+      str => str.contains(char)
+    )
 
   def containsOnce(char: Char): Predicate[Errors, String] =
     Predicate.lift(
       error(s"Must contain the character $char only once"),
-      str => str.count(c => c == char) == 1)
+      str => str.count(c => c == char) == 1
+    )
 
 
   // Validation criteria (uses funcs above):
