@@ -42,6 +42,17 @@ object TypeClass_Basics extends App {
   println(6.toJson)
   
 //  println(true.toJson)      // -> error has we haven't defined an implementation of JSONSerialiser for type Boolean.
-  
+
+
+
+
+  // Another Extension method, but when the value is wrapped in Option
+  extension [T](value: Option[T])(using serialiser: JSONSerialiser[T]) {
+    def toJson: String = value match
+      case Some(value) => serialiser.toJson(value)      // Unpacks option container & calls toJson implementation on it
+      case None => ""                                   // Option empty
+  }
+
+  Option(Person("Bob", 35)).toJson      // { "name" : Bob, "age" : 35 }
 
 }
