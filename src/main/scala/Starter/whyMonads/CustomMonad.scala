@@ -5,17 +5,18 @@ import scala.annotation.implicitNotFound
 
 object CustomMonad extends App {
 
-  // Custom Monad type-class (this is built-in to Cats)
-  @implicitNotFound("Could not find an instance of Monad for ${M}") // When Intellij highlights implicits error, this msg appears
+  /** Custom Monad type-class (this is built-in to Cats) <p>
+   *  F[_] is a generic for any type that wraps another type (e.g List, Set, Option, Either). */
+  @implicitNotFound("Could not find an instance of Monad for ${F}") // When Intellij highlights implicits error, this msg appears
   @typeclass
-  trait Monad[M[_]] {
-    def pure[A](a: A): M[A]
+  trait Monad[F[_]] {
+    def pure[A](a: A): F[A]
 
-    def flatMap[A, B](ma: M[A])(f: A => M[B]): M[B]
+    def flatMap[A, B](ma: F[A])(f: A => F[B]): F[B]
 
-    def tailRecM[A, B](a: A)(fn: A => M[Either[A, B]]): M[B]
+    def tailRecM[A, B](a: A)(fn: A => F[Either[A, B]]): F[B]
 
-    def map[A, B](ma: M[A])(f: A => B): M[B] = // Implemented for free (don't need to define for an implementation, as it uses other methods that are already defined)
+    def map[A, B](ma: F[A])(f: A => B): F[B] = // Implemented for free (don't need to define for an implementation, as it uses other methods that are already defined)
       flatMap(ma)(a => pure(f(a)))
   }
 
@@ -40,7 +41,7 @@ object CustomMonad extends App {
 
 
   // Function to 'combine' 2 wrappers (1 wrapper of Strings & 1 wrapper of Int)
-  def combine_v1[M[_]](str: M[String])(num: M[Int])(using monad: Monad[M]): M[(String, Int)] =
+  def combine_v1[F[_]](str: F[String])(num: F[Int])(using monad: Monad[F]): F[(String, Int)] =
     monad.flatMap(str)(s => monad.map(num)(n => (s, n)))
 
 
@@ -51,12 +52,12 @@ object CustomMonad extends App {
 
 
   // Extension methods --> For-comprehensions
-  extension[M[_], A] (ma: M[A])(using monad: Monad[M]) {
-    def map[B](f: A => B): M[B] = monad.map(ma)(f)
-    def flatMap[B](f: A => M[B]): M[B] = monad.flatMap(ma)(f)
+  extension[F[_], A] (ma: F[A])(using monad: Monad[F]) {
+    def map[B](f: A => B): F[B] = monad.map(ma)(f)
+    def flatMap[B](f: A => F[B]): F[B] = monad.flatMap(ma)(f)
   }
 
-  def combine_v2[M[_] : Monad](str: M[String])(num: M[Int]): M[(String, Int)] = for {
+  def combine_v2[F[_] : Monad](str: F[String])(num: F[Int]): F[(String, Int)] = for {
     s <- str
     n <- num
   } yield (s, n)
