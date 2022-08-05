@@ -1,4 +1,4 @@
-package datatypes.ChainDemo
+package data_types.ChainDemo
 
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptyVector}
 
