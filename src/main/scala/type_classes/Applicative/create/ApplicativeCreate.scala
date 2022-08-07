@@ -1,7 +1,7 @@
 package type_classes.Applicative.create
 
 import simulacrum.typeclass
-import type_classes.Apply.create.ApplyCreate.Apply
+import type_classes.Apply.create.ApplyAPI.Apply
 
 object ApplicativeCreate {
 
