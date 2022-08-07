@@ -11,7 +11,11 @@ object FunctorUsing extends App {
 
   // METHODS
   
-  /** compose: */
+  /** compose: <p>
+   * When trying to map over nested data-types (e.g. Option[List[A]] or List[Either[String, Future[A]]]). <br>
+   * Can use Functor#compose, instead of something like _.map(_.map(_.map(f))). <br>
+   * Functors compose, which means if F and G have Functor instances, then so does F[G[_]].
+   * */
   val l = List(Some(1), None, Some(2))      // List[Option[Int]]
   Functor[List].compose[Option].map(l)(_ + 1)        // res: List[Option[Int]] = List(Some(2), None, Some(3))
   
