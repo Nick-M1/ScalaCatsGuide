@@ -14,6 +14,9 @@ Contains a short demo on why type-classes are useful and a demo on how to use Mo
 ### #3 - Type Class Folder:
  * Within each Create Folder:
    * Describes what each type-class does and provides a simplified API for each. <br>
+ 
+ * Within each Implementations Folder:
+   * Defines implementations for thi type-class, for different data structures
    * All of this is already built-in to the Cats library, so the user doesn't have to define these in their code.
 
  * Within each Using Folder:
