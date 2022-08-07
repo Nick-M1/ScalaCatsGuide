@@ -1,3 +1,5 @@
+![](src/main/Resources/impure-logo.png)
+
 ## GUIDE FOR CATS LIBRARY:
 
 ### Overview of the Components in the Cats Ecosystem:
