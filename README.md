@@ -2,6 +2,12 @@
 
 ## GUIDE FOR CATS LIBRARY:
 
+### tl;dr
+Cats is a library which provides abstractions for functional programming to Scala. <br>
+It adds type-classes (which are abstract & generic), which adds functionality to existing types & libraries without using Object Orientated inheritance. <br>
+In Object Orientated languages (e.g. Java), where extension methods aren't a feature of the language, the way to extend functionality to a specific class (e.g. Strings) would be to create a new class that inherits from this class (e.g Strings) and adds on these new user-created methods. <br>
+However, with Scala & Cats, this isn't necessary as we can use Cat's type-classes and implicit implementations of these type-classes for the types/classes we want to extend the functionality of.
+
 ### Overview of the Components in the Cats Ecosystem:
 * Abstract type classes & their methods (e.g. Monad, Functor, Applicative, Semigroup) - "_Code to abstractions not concrete implementations_"
 * Data types - Real world data structures/types that each have their own functionality & use-cases
